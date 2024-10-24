@@ -6,7 +6,7 @@ import java.util.concurrent.Executors;
 
 public class ThreadRunner {
     public static void main(String[] args) {
-        virtualThreadRun();
+        threadRun();
     }
 
     public static void run() {
@@ -31,6 +31,31 @@ public class ThreadRunner {
             }
         }
 
+    }
+
+    public static void threadRun() {
+        new Thread(() -> {
+            System.out.println("start 플랫폼 스레드입니다.");
+        }).start();
+
+        Runnable runnable = () -> {
+            System.out.println("runnable 플랫폼 스레드입니다.");
+        };
+
+        Thread platformThread = new Thread(runnable);
+        platformThread.start();
+
+        Thread platformThread2 = new Thread(runnable);
+        platformThread2.setName("JVM-Thread");
+        platformThread2.start();
+
+        System.out.println("플랫폼 스레드인지 확인 " + !platformThread.isVirtual());
+
+        try (ExecutorService executorService = Executors.newFixedThreadPool(3)) {
+            for (int i = 0; i < 3; i++) {
+                executorService.submit(runnable);
+            }
+        }
     }
 
     public static void virtualThreadRun() {
